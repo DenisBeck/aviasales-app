@@ -10,75 +10,45 @@ function Filter() {
   const transfers = useSelector((state) => state.filter.transfers);
   const dispatch = useDispatch();
 
+  const filterItems = [
+    { label: 'Все', id: 'check-all' },
+    { label: 'Без пересадок', id: 'check-0', transfersCount: 0 },
+    { label: '1 пересадка', id: 'check-1', transfersCount: 1 },
+    { label: '2 пересадки', id: 'check-2', transfersCount: 2 },
+    { label: '3 пересадки', id: 'check-3', transfersCount: 3 },
+  ];
+
+  const changeAll = (e) => {
+    dispatch(toggleAllTransfers(e.target.checked));
+  };
+
+  const changeOne = (value) => {
+    dispatch(toggleTransfersCount(value));
+  };
+
   return (
     <div className={classes.filter}>
       <h3 className={classes['filter-title']}>Количество пересадок</h3>
       <ul className={classes['filter-checkboxes']}>
-        <li className={classes['filter-checkbox']}>
-          <input
-            type="checkbox"
-            id="check-all"
-            name="transfer"
-            className={classes['checkbox-input']}
-            onChange={() => dispatch(toggleAllTransfers())}
-            checked={transfers.every((item) => item === true)}
-          />
-          <label htmlFor="check-all" className={classes['checkbox-label']}>
-            Все
-          </label>
-        </li>
-        <li className={classes['filter-checkbox']}>
-          <input
-            type="checkbox"
-            id="check-0"
-            name="transfer"
-            className={classes['checkbox-input']}
-            onChange={() => dispatch(toggleTransfersCount(0))}
-            checked={transfers[0]}
-          />
-          <label htmlFor="check-0" className={classes['checkbox-label']}>
-            Без пересадок
-          </label>
-        </li>
-        <li className={classes['filter-checkbox']}>
-          <input
-            type="checkbox"
-            id="check-1"
-            name="transfer"
-            className={classes['checkbox-input']}
-            onChange={() => dispatch(toggleTransfersCount(1))}
-            checked={transfers[1]}
-          />
-          <label htmlFor="check-1" className={classes['checkbox-label']}>
-            1 пересадка
-          </label>
-        </li>
-        <li className={classes['filter-checkbox']}>
-          <input
-            type="checkbox"
-            id="check-2"
-            name="transfer"
-            className={classes['checkbox-input']}
-            onChange={() => dispatch(toggleTransfersCount(2))}
-            checked={transfers[2]}
-          />
-          <label htmlFor="check-2" className={classes['checkbox-label']}>
-            2 пересадки
-          </label>
-        </li>
-        <li className={classes['filter-checkbox']}>
-          <input
-            type="checkbox"
-            id="check-3"
-            name="transfer"
-            className={classes['checkbox-input']}
-            onChange={() => dispatch(toggleTransfersCount(3))}
-            checked={transfers[3]}
-          />
-          <label htmlFor="check-3" className={classes['checkbox-label']}>
-            3 пересадки
-          </label>
-        </li>
+        {filterItems.map((item) => (
+          <li key={item.id} className={classes['filter-checkbox']}>
+            <input
+              type="checkbox"
+              id={item.id}
+              name="transfer"
+              className={classes['checkbox-input']}
+              onChange={item.id === 'check-all' ? changeAll : () => changeOne(item.transfersCount)}
+              checked={
+                item.id === 'check-all'
+                  ? transfers.every((transfer) => transfer === true)
+                  : transfers[item.transfersCount]
+              }
+            />
+            <label htmlFor={item.id} className={classes['checkbox-label']}>
+              {item.label}
+            </label>
+          </li>
+        ))}
       </ul>
     </div>
   );

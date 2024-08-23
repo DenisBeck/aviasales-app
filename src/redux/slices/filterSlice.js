@@ -20,8 +20,8 @@ export const filterSlice = createSlice({
   name: 'filter',
   initialState,
   reducers: {
-    toggleAllTransfers: (state) => {
-      state.transfers = state.transfers.map(item => !item);
+    toggleAllTransfers: (state, action) => {
+      state.transfers = state.transfers.map(() => action.payload);
     },
     toggleTransfersCount: (state, action) => {
       state.transfers = state.transfers.map((item, index) => {
