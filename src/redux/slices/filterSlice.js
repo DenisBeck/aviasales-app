@@ -5,15 +5,15 @@ import { createSlice } from '@reduxjs/toolkit';
 export const MAX_TRANSFER_COUNT = 3;
 
 const initialState = {
-  transfers: function getArr() {
+  transfers: (function getArr() {
     const t = [];
     let i = 0;
-    while(i <= MAX_TRANSFER_COUNT) {
+    while (i <= MAX_TRANSFER_COUNT) {
       i++;
-      t.push(false);
+      t.push(true);
     }
     return t;
-  }()
+  })(),
 };
 
 export const filterSlice = createSlice({
@@ -30,7 +30,7 @@ export const filterSlice = createSlice({
         }
         return item;
       });
-    }
+    },
   },
 });
 
