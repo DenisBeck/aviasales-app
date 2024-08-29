@@ -43,14 +43,6 @@ const config = {
     new MiniCssExtractPlugin({
       filename: '[name].[contenthash].css',
     }),
-    // new CopyWebpackPlugin({
-    //   patterns: [
-    //     {
-    //       from: 'src/assets',
-    //       to: 'dist/assets',
-    //     },
-    //   ],
-    // }),
   ],
   module: {
     rules: [
