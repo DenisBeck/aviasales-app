@@ -1,27 +1,38 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-param-reassign */
 /* eslint-disable import/prefer-default-export */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import ticketsAPI from '../../api/ticketsAPI';
 
-export const fetchTickets = createAsyncThunk('tickets/fetchTickets', async (_, { rejectWithValue }) => {
-  try {
-    const searchId = await ticketsAPI.fetchSearchId();
-    const { tickets } = await ticketsAPI.fetchTicketsById(searchId);
-    return tickets;
-  } catch (err) {
-    return rejectWithValue(err.message);
-  }
+export const fetchSearchId = createAsyncThunk('tickets/fetchSearchId', async (_, { signal }) => {
+  const searchId = await ticketsAPI.fetchSearchId(signal);
+  return searchId;
 });
+
+export const fetchTickets = createAsyncThunk(
+  'tickets/fetchTickets',
+  async (searchId, { getState, rejectWithValue }) => {
+    try {
+      const { tickets, stop } = await ticketsAPI.fetchTicketsById(searchId);
+      return { tickets, stop };
+    } catch (err) {
+      if (getState().tickets.data.tickets) {
+        return rejectWithValue('Данные получены не полностью');
+      }
+      return rejectWithValue(err.message);
+    }
+  }
+);
 
 const initialState = {
   data: {
+    searchId: null,
     tickets: null,
     countToRender: 5,
     stop: false,
     filteredAndSorted: [],
   },
-  loading: false,
   error: null,
 };
 
@@ -57,19 +68,20 @@ const ticketsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTickets.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(fetchSearchId.fulfilled, (state, action) => {
+        state.data.searchId = action.payload;
       })
       .addCase(fetchTickets.rejected, (state, action) => {
         state.error = action.payload;
-        state.loading = false;
-        state.data.tickets = null;
       })
       .addCase(fetchTickets.fulfilled, (state, action) => {
-        state.loading = false;
+        if (!state.data.tickets) {
+          state.data.tickets = action.payload.tickets;
+        } else {
+          state.data.tickets = [...state.data.tickets, ...action.payload.tickets];
+        }
         state.error = null;
-        state.data.tickets = action.payload;
+        state.data.stop = action.payload.stop;
       });
   },
 });

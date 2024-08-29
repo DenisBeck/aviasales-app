@@ -11,4 +11,8 @@ export const store = configureStore({
     filter: filterReducer,
     tickets: ticketsReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });

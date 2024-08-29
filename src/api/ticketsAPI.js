@@ -27,9 +27,10 @@ class TicketsAPI {
     }));
   }
 
-  async fetchSearchId() {
+  async fetchSearchId(signal) {
     const response = await fetch(`${this.baseUrl}/search`, {
       method: 'GET',
+      signal,
     });
 
     if (!response.ok) {

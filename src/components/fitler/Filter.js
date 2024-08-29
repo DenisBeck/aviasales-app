@@ -3,6 +3,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { toggleAllTransfers, toggleTransfersCount } from '../../redux/slices/filterSlice';
+import { setCountToRender } from '../../redux/slices/ticketsSlice';
 
 import classes from './Filter.module.scss';
 
@@ -20,10 +21,12 @@ function Filter() {
 
   const changeAll = (e) => {
     dispatch(toggleAllTransfers(e.target.checked));
+    dispatch(setCountToRender(5));
   };
 
   const changeOne = (value) => {
     dispatch(toggleTransfersCount(value));
+    dispatch(setCountToRender(5));
   };
 
   return (

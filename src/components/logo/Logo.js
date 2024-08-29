@@ -7,7 +7,7 @@ import classes from './Logo.module.scss';
 function Logo() {
   return (
     <div className={classes.logo}>
-      <img src={LogoIcon} alt='logo' />
+      <img src={LogoIcon} alt="logo" />
     </div>
   );
 }
