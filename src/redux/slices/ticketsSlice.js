@@ -2,6 +2,16 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import ticketsAPI from '../../api/ticketsAPI';
 
+import { setErrorsCount } from './errorsSlice';
+
+const initialState = {
+  searchId: null,
+  countToRender: 5,
+  stop: false,
+  data: null,
+  error: null,
+};
+
 export const fetchSearchId = createAsyncThunk('tickets/fetchSearchId', async (_, { signal }) => {
   const searchId = await ticketsAPI.fetchSearchId(signal);
   return searchId;
@@ -9,12 +19,18 @@ export const fetchSearchId = createAsyncThunk('tickets/fetchSearchId', async (_,
 
 export const fetchTickets = createAsyncThunk(
   'tickets/fetchTickets',
-  async (searchId, { getState, rejectWithValue }) => {
+  async (searchId, { getState, rejectWithValue, dispatch }) => {
     try {
       const { tickets, stop } = await ticketsAPI.fetchTicketsById(searchId);
+      dispatch(setErrorsCount(0));
       return { tickets, stop };
     } catch (err) {
-      if (getState().tickets.data) {
+      const { data } = getState().tickets;
+      const { errorsCount } = getState().errors;
+
+      dispatch(setErrorsCount(errorsCount + 1));
+
+      if (data) {
         return rejectWithValue('Данные получены не полностью');
       }
       return rejectWithValue(err.message);
@@ -22,43 +38,12 @@ export const fetchTickets = createAsyncThunk(
   }
 );
 
-const initialState = {
-  searchId: null,
-  countToRender: 5,
-  stop: false,
-  filteredAndSorted: [],
-  data: null,
-  error: null,
-};
-
 const ticketsSlice = createSlice({
   name: 'tickets',
   initialState,
   reducers: {
     setCountToRender: (state, action) => {
       state.countToRender = action.payload;
-    },
-    filterTickets: (state, action) => {
-      state.filteredAndSorted = state.data.filter((item) =>
-        item.segments.some((segment) => action.payload.includes(segment.stops.length))
-      );
-    },
-    sortCheapest: (state) => {
-      state.filteredAndSorted = state.filteredAndSorted.sort((a, b) => a.price - b.price);
-    },
-    sortFastest: (state) => {
-      state.filteredAndSorted = state.filteredAndSorted.sort(
-        (a, b) =>
-          a.segments.reduce((sum, item) => sum + item.duration, 0) -
-          b.segments.reduce((sum, item) => sum + item.duration, 0)
-      );
-    },
-    sortOptimal: (state) => {
-      state.filteredAndSorted = state.filteredAndSorted.sort(
-        (a, b) =>
-          a.price * a.segments.reduce((sum, item) => sum + item.duration, 0) -
-          b.price * b.segments.reduce((sum, item) => sum + item.duration, 0)
-      );
     },
   },
   extraReducers: (builder) => {
@@ -70,16 +55,18 @@ const ticketsSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(fetchTickets.fulfilled, (state, action) => {
-        if (!state.data) {
-          state.data = action.payload.tickets;
-        } else {
-          state.data = [...state.data, ...action.payload.tickets];
+        if (action.payload) {
+          if (!state.data) {
+            state.data = action.payload.tickets;
+          } else {
+            state.data = [...state.data, ...action.payload.tickets];
+          }
+          state.error = null;
+          state.stop = action.payload.stop;
         }
-        state.error = null;
-        state.stop = action.payload.stop;
       });
   },
 });
 
-export const { sortCheapest, sortFastest, sortOptimal, setCountToRender, filterTickets } = ticketsSlice.actions;
+export const { setCountToRender } = ticketsSlice.actions;
 export default ticketsSlice.reducer;

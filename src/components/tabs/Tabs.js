@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { setSort } from '../../redux/slices/sortingSlice';
 import { setCountToRender } from '../../redux/slices/ticketsSlice';
-import { selectSortingType } from '../../redux/selectors/filteredAndSorted';
+import selectSortingType from '../../redux/selectors/sortingType';
 
 import classes from './Tabs.module.scss';
 

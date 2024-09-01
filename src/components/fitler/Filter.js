@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { toggleAllTransfers, toggleTransfersCount } from '../../redux/slices/filterSlice';
 import { setCountToRender } from '../../redux/slices/ticketsSlice';
-import { selectFilters } from '../../redux/selectors/filteredAndSorted';
+import selectFilters from '../../redux/selectors/filters';
 
 import classes from './Filter.module.scss';
 
