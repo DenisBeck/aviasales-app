@@ -5,16 +5,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../loader';
 import TicketsItem from '../tickets-item';
 import { fetchTickets, filterTickets, sortCheapest, sortFastest, sortOptimal } from '../../redux/slices/ticketsSlice';
+import { selectFetchingData } from '../../redux/selectors/filteredAndSorted';
 
 import classes from './TicketsList.module.scss';
 
 function TicketsList() {
-  const { data, error } = useSelector((state) => state.tickets);
+  const { data, error, countToRender, searchId, stop } = useSelector(selectFetchingData);
   const { transfers } = useSelector((state) => state.filter);
   const { sortingBy } = useSelector((state) => state.sorting);
   const dispatch = useDispatch();
-
-  const { filteredAndSorted, tickets, countToRender, searchId, stop } = data;
 
   const getCheckedStops = (stops) => {
     const checkedStops = [];
@@ -27,20 +26,16 @@ function TicketsList() {
   };
 
   useEffect(() => {
-    let timerId;
-    if (!stop && tickets && !error) {
-      timerId = setTimeout(() => {
-        dispatch(fetchTickets(searchId));
-      }, 2000);
+    if (!stop && data && !error) {
+      dispatch(fetchTickets(searchId));
     }
-    return () => clearTimeout(timerId);
-  }, [tickets]);
+  }, [data]);
 
   useEffect(() => {
     if (!searchId) {
       return;
     }
-    if (!tickets) {
+    if (!data) {
       dispatch(fetchTickets(searchId));
     } else {
       dispatch(filterTickets(getCheckedStops(transfers)));
@@ -55,11 +50,11 @@ function TicketsList() {
           dispatch(sortOptimal());
       }
     }
-  }, [searchId, tickets, transfers, sortingBy]);
+  }, [searchId, data, transfers, sortingBy]);
 
   const content = (
     <ul className={classes['tickets-list']}>
-      {filteredAndSorted.slice(0, countToRender).map((ticket) => (
+      {data?.slice(0, countToRender).map((ticket) => (
         <TicketsItem key={ticket.id} data={ticket} />
       ))}
     </ul>
@@ -67,13 +62,13 @@ function TicketsList() {
 
   return (
     <div className={classes['tickets-container']}>
-      <p className={classes.indicator}>
+      <div className={classes.indicator}>
         {stop && <p>Все данные получены!</p>}
         {!stop && !error && <Loader />}
         {error && error}
-      </p>
-      {tickets && !filteredAndSorted?.length && <p>Рейсов, подходящих под заданные фильтры, не найдено</p>}
-      {filteredAndSorted.length > 0 && content}
+      </div>
+      {data && !data?.length && <p>Рейсов, подходящих под заданные фильтры, не найдено</p>}
+      {data?.length > 0 && content}
     </div>
   );
 }

@@ -6,12 +6,10 @@ import { setCountToRender } from '../../redux/slices/ticketsSlice';
 import classes from './Showmore.module.scss';
 
 function Showmore() {
-  const { data } = useSelector((state) => state.tickets);
+  const { data, countToRender } = useSelector((state) => state.tickets);
   const dispatch = useDispatch();
 
-  const { countToRender, filteredAndSorted } = data;
-
-  if (filteredAndSorted?.length < countToRender) {
+  if (data?.length < countToRender) {
     return null;
   }
 

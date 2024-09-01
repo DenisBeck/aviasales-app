@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { setSort } from '../../redux/slices/sortingSlice';
 import { setCountToRender } from '../../redux/slices/ticketsSlice';
+import { selectSortingType } from '../../redux/selectors/filteredAndSorted';
 
 import classes from './Tabs.module.scss';
 
 function Tabs() {
-  const sorting = useSelector((state) => state.sorting.sortingBy);
+  const sorting = useSelector(selectSortingType);
   const dispatch = useDispatch();
 
   const handleClick = (tabLabel) => {

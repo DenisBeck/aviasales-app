@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable import/prefer-default-export */
 import { createSlice } from '@reduxjs/toolkit';
 
 export const MAX_TRANSFER_COUNT = 3;

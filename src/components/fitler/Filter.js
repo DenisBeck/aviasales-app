@@ -4,11 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { toggleAllTransfers, toggleTransfersCount } from '../../redux/slices/filterSlice';
 import { setCountToRender } from '../../redux/slices/ticketsSlice';
+import { selectFilters } from '../../redux/selectors/filteredAndSorted';
 
 import classes from './Filter.module.scss';
 
 function Filter() {
-  const transfers = useSelector((state) => state.filter.transfers);
+  const transfers = useSelector(selectFilters);
   const dispatch = useDispatch();
 
   const filterItems = [
