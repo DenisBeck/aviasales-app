@@ -20,13 +20,17 @@ export const fetchSearchId = createAsyncThunk('tickets/fetchSearchId', async (_,
 export const fetchTickets = createAsyncThunk(
   'tickets/fetchTickets',
   async (searchId, { getState, rejectWithValue, dispatch }) => {
+    const { errorsCount } = getState().errors;
     try {
       const { tickets, stop } = await ticketsAPI.fetchTicketsById(searchId);
-      dispatch(setErrorsCount(0));
+
+      if (errorsCount !== 0) {
+        dispatch(setErrorsCount(0));
+      }
+
       return { tickets, stop };
     } catch (err) {
       const { data } = getState().tickets;
-      const { errorsCount } = getState().errors;
 
       dispatch(setErrorsCount(errorsCount + 1));
 
