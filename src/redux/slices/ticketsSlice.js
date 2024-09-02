@@ -21,6 +21,7 @@ export const fetchTickets = createAsyncThunk(
   'tickets/fetchTickets',
   async (searchId, { getState, rejectWithValue, dispatch }) => {
     const { errorsCount } = getState().errors;
+
     try {
       const { tickets, stop } = await ticketsAPI.fetchTicketsById(searchId);
 
@@ -45,6 +46,13 @@ export const fetchTickets = createAsyncThunk(
 const ticketsSlice = createSlice({
   name: 'tickets',
   initialState,
+  selectors: {
+    selectFetchingError: (state) => state.error,
+    selectFetchingSearchId: (state) => state.searchId,
+    selectFetchingStop: (state) => state.stop,
+    selectFetchingCountToRender: (state) => state.countToRender,
+    selectFetchingData: (state) => state.data,
+  },
   reducers: {
     setCountToRender: (state, action) => {
       state.countToRender = action.payload;
@@ -73,4 +81,11 @@ const ticketsSlice = createSlice({
 });
 
 export const { setCountToRender } = ticketsSlice.actions;
+export const {
+  selectFetchingError,
+  selectFetchingStop,
+  selectFetchingCountToRender,
+  selectFetchingSearchId,
+  selectFetchingData,
+} = ticketsSlice.selectors;
 export default ticketsSlice.reducer;

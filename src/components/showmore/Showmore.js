@@ -1,14 +1,14 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { setCountToRender } from '../../redux/slices/ticketsSlice';
+import { selectFetchingCountToRender, setCountToRender } from '../../redux/slices/ticketsSlice';
 import selectFilteredAndSorted from '../../redux/selectors/filteredAndSorted';
 
 import classes from './Showmore.module.scss';
 
 function Showmore() {
   const tickets = useSelector(selectFilteredAndSorted);
-  const { countToRender } = useSelector((state) => state.tickets);
+  const countToRender = useSelector(selectFetchingCountToRender);
   const dispatch = useDispatch();
 
   if (!tickets || tickets.length < countToRender) {

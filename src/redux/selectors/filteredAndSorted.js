@@ -1,14 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit';
 
-import selectFilters from './filters';
-import selectFetchingData from './fetchingData';
-import selectSortingType from './sortingType';
+import { selectFilters } from '../slices/filterSlice';
+import { selectSortingType } from '../slices/sortingSlice';
+import { selectFetchingData } from '../slices/ticketsSlice';
 
 const selectFilteredAndSorted = createSelector(
   [selectFilters, selectFetchingData, selectSortingType],
-  (transfersFilter, tickets, sort) => {
-    const { data } = tickets;
-
+  (transfersFilter, data, sort) => {
     if (!data) {
       return null;
     }

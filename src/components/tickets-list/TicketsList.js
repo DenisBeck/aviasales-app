@@ -4,16 +4,24 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Loader from '../loader';
 import TicketsItem from '../tickets-item';
-import { fetchTickets } from '../../redux/slices/ticketsSlice';
+import {
+  fetchTickets,
+  selectFetchingCountToRender,
+  selectFetchingError,
+  selectFetchingSearchId,
+  selectFetchingStop,
+} from '../../redux/slices/ticketsSlice';
+import { selectErrors } from '../../redux/slices/errorsSlice';
 import selectFilteredAndSorted from '../../redux/selectors/filteredAndSorted';
-import selectErrors from '../../redux/selectors/errors';
-import selectFetchingData from '../../redux/selectors/fetchingData';
 
 import classes from './TicketsList.module.scss';
 
 function TicketsList() {
-  const { error, countToRender, searchId, stop } = useSelector(selectFetchingData);
-  const { errorsCount } = useSelector(selectErrors);
+  const errorsCount = useSelector(selectErrors);
+  const countToRender = useSelector(selectFetchingCountToRender);
+  const searchId = useSelector(selectFetchingSearchId);
+  const stop = useSelector(selectFetchingStop);
+  const error = useSelector(selectFetchingError);
   const tickets = useSelector(selectFilteredAndSorted);
   const dispatch = useDispatch();
 

@@ -7,6 +7,9 @@ const initialState = {
 export const errorsSlice = createSlice({
   name: 'errors',
   initialState,
+  selectors: {
+    selectErrors: (state) => state.errorsCount,
+  },
   reducers: {
     setErrorsCount: (state, action) => {
       state.errorsCount = action.payload;
@@ -15,4 +18,5 @@ export const errorsSlice = createSlice({
 });
 
 export const { setErrorsCount } = errorsSlice.actions;
+export const { selectErrors } = errorsSlice.selectors;
 export default errorsSlice.reducer;
