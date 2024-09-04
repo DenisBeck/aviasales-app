@@ -10,26 +10,26 @@ import {
   selectFetchingError,
   selectFetchingSearchId,
   selectFetchingStop,
+  selectRequestCount,
 } from '../../redux/slices/ticketsSlice';
-import { selectErrors } from '../../redux/slices/errorsSlice';
 import selectFilteredAndSorted from '../../redux/selectors/filteredAndSorted';
 
 import classes from './TicketsList.module.scss';
 
 function TicketsList() {
-  const errorsCount = useSelector(selectErrors);
   const countToRender = useSelector(selectFetchingCountToRender);
   const searchId = useSelector(selectFetchingSearchId);
   const stop = useSelector(selectFetchingStop);
   const error = useSelector(selectFetchingError);
   const tickets = useSelector(selectFilteredAndSorted);
+  const requestCount = useSelector(selectRequestCount);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (searchId && !stop && errorsCount < 3) {
+    if (searchId && !stop) {
       dispatch(fetchTickets(searchId));
     }
-  });
+  }, [searchId, requestCount]);
 
   const content = (
     <ul className={classes['tickets-list']}>
@@ -41,9 +41,9 @@ function TicketsList() {
 
   return (
     <div className={classes['tickets-container']}>
-      <div className={classes.indicator}>
-        {!stop && errorsCount < 3 && <Loader />}
-        {errorsCount >= 3 && error}
+      <div style={{ display: stop && error.length === 0 && 'none' }} className={classes.indicator}>
+        {!stop && !error.length && <Loader />}
+        {error.length > 0 && error}
       </div>
       {tickets && !tickets?.length && <p>Рейсов, подходящих под заданные фильтры, не найдено</p>}
       {tickets?.length > 0 && content}

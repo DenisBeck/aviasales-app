@@ -2,14 +2,17 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import ticketsAPI from '../../api/ticketsAPI';
 
-import { setErrorsCount } from './errorsSlice';
-
 const initialState = {
   searchId: null,
   countToRender: 5,
   stop: false,
   data: null,
-  error: null,
+  error: '',
+  currentRequestId: null,
+  requestCount: {
+    errorsCount: 0,
+    succeedCount: 0,
+  },
 };
 
 export const fetchSearchId = createAsyncThunk('tickets/fetchSearchId', async (_, { signal }) => {
@@ -19,27 +22,25 @@ export const fetchSearchId = createAsyncThunk('tickets/fetchSearchId', async (_,
 
 export const fetchTickets = createAsyncThunk(
   'tickets/fetchTickets',
-  async (searchId, { getState, rejectWithValue, dispatch }) => {
-    const { errorsCount } = getState().errors;
+  async (searchId, { getState, rejectWithValue }) => {
+    const { data } = getState().tickets;
 
     try {
       const { tickets, stop } = await ticketsAPI.fetchTicketsById(searchId);
 
-      if (errorsCount !== 0) {
-        dispatch(setErrorsCount(0));
-      }
-
       return { tickets, stop };
     } catch (err) {
-      const { data } = getState().tickets;
-
-      dispatch(setErrorsCount(errorsCount + 1));
-
       if (data) {
         return rejectWithValue('Данные получены не полностью');
       }
       return rejectWithValue(err.message);
     }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { searchId, currentRequestId, error } = getState().tickets;
+      return !currentRequestId && !!searchId && !error;
+    },
   }
 );
 
@@ -52,6 +53,7 @@ const ticketsSlice = createSlice({
     selectFetchingStop: (state) => state.stop,
     selectFetchingCountToRender: (state) => state.countToRender,
     selectFetchingData: (state) => state.data,
+    selectRequestCount: (state) => state.requestCount,
   },
   reducers: {
     setCountToRender: (state, action) => {
@@ -63,19 +65,27 @@ const ticketsSlice = createSlice({
       .addCase(fetchSearchId.fulfilled, (state, action) => {
         state.searchId = action.payload;
       })
+      .addCase(fetchTickets.pending, (state, action) => {
+        state.currentRequestId = action.meta.requestId;
+      })
       .addCase(fetchTickets.rejected, (state, action) => {
-        state.error = action.payload;
+        state.requestCount.errorsCount++;
+        if (state.requestCount.errorsCount >= 3) {
+          state.error = action.payload;
+        }
+        state.currentRequestId = null;
       })
       .addCase(fetchTickets.fulfilled, (state, action) => {
-        if (action.payload) {
-          if (!state.data) {
-            state.data = action.payload.tickets;
-          } else {
-            state.data = [...state.data, ...action.payload.tickets];
-          }
-          state.error = null;
-          state.stop = action.payload.stop;
+        if (!state.data) {
+          state.data = action.payload.tickets;
+        } else {
+          state.data.push(...action.payload.tickets);
         }
+        state.requestCount.errorsCount = 0;
+        state.requestCount.succeedCount++;
+        state.error = '';
+        state.stop = action.payload.stop;
+        state.currentRequestId = null;
       });
   },
 });
@@ -87,5 +97,6 @@ export const {
   selectFetchingCountToRender,
   selectFetchingSearchId,
   selectFetchingData,
+  selectRequestCount,
 } = ticketsSlice.selectors;
 export default ticketsSlice.reducer;
